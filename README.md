@@ -2,6 +2,8 @@
 
 阅读项目API文件请访问 [API 文档](https://github.com/QaQTeam/Frame/blob/main/api.md)
 
+剩余未实现的功能：支付（详细功能） AI模拟自动下单 续期身份令牌 其他基本上全部实现了（基础版）
+
 ## 人员分配
 
 🪴 [alltobebetter](https://github.com/alltobebetter)：总体框架和统筹规划
