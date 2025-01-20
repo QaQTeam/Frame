@@ -5,10 +5,15 @@
 ## 人员分配
 
 🪴 [alltobebetter](https://github.com/alltobebetter)：总体框架和统筹规划
+
 🍄 [Xavier](https://github.com/Xavier-Tse)：身份认证和后期优化处理
+
 🌟 [jtf_shine](https://github.com/jyfct356)：后期整合与优化处理
+
 🍋 [Z-j19](https://github.com/Z-j19)：支付模块与优化处理
+
 🥑 [408 God](https://github.com//NEUFFFYK)：订单模块与后期处理
+
 🌿 [liberty](https://github.com/liberty0722)：后期规划与整合优化
 
 ## 具体工作方案
