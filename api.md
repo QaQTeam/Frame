@@ -26,14 +26,14 @@ README 下方可能有些错误，但经过测试基本上是可行的。如有�
 ## 配置说明
 
 ### 环境要求
-- Go 1.16+
+- Go 1.23.4（最好）
 - MySQL 5.7+
 - Redis (可选，用于缓存)
 
 ### 配置项
 项目运行需要以下配置：
 
-1. 数据库配置（可以换成你实际的，这是我在测试的时候的配置而已awa）
+1. 数据库配置（可以直接在代码里面换成你实际的，不用写环境变量配置文件，测试时候没啥用，而且我不确定能不能有用，这是我在测试的时候的配置而已awa）
 ```env
 DB_HOST=localhost
 DB_PORT=3306
@@ -56,27 +56,6 @@ OPENAI_API_URL=https://api.openai.com/v1/chat/completions
 
 ### 快速开始
 
-1. 克隆项目
-```bash
-git clone https://github.com/alltobebetter/G-x2waeoe/
-cd qaqmall
-```
-
-2. 初始化数据库（Windows系统执行无效）
-```bash
-mysql -u root -p < scripts/init_database.sql
-```
-
-3. 配置环境变量
-```bash
-cp .env.example .env
-# 编辑 .env 文件，填入实际的配置值
-```
-
-4. 运行项目
-```bash
-go run main.go
-```
 
 ## API 接口
 
