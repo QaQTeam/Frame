@@ -11,8 +11,21 @@ import (
 	"gorm.io/gorm"
 
 	"qaqmall/models"
-	"qaqmall/utils/jwts"
 )
+
+// GenerateNewToken 生成新的JWT
+func GenerateNewToken(userID uint64, username, role string) (string, error) {
+	claims := jwt.MapClaims{
+		"user_id":  userID,
+		"username": username,
+		"role":     role,
+		"exp":      time.Now().Add(24 * time.Hour).Unix(),
+	}
+
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+	secretKey := []byte("your-secret-key")
+	return token.SignedString(secretKey)
+}
 
 func Auth(db *gorm.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
@@ -69,18 +82,18 @@ func Auth(db *gorm.DB) gin.HandlerFunc {
 			if exp, exists := claims["exp"]; exists {
 				expTime := time.Unix(int64(exp.(float64)), 0)
 				remainingTime := expTime.Sub(time.Now())
-				fmt.Println(remainingTime)
+				fmt.Printf("Token剩余有效期: %v\n", remainingTime)
 
 				// 剩余时间小于12小时，进行续期
 				if remainingTime < 12*time.Hour {
-					newToken, err := jwts.GenerateNewToken(userID, username, role)
+					newToken, err := GenerateNewToken(userID, username, role)
 					if err != nil {
 						c.JSON(http.StatusInternalServerError, gin.H{"error": "续期token失败"})
 						c.Abort()
 						return
 					}
 					c.Header("Authorization", "Bearer "+newToken)
-					fmt.Println("续期token成功:" + newToken)
+					fmt.Printf("续期token成功，新token: %s\n", newToken)
 				}
 			}
 			c.Next()
