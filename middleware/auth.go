@@ -1,6 +1,7 @@
 package middleware
 
 import (
+	"fmt"
 	"net/http"
 	"strings"
 	"time"
@@ -10,6 +11,7 @@ import (
 	"gorm.io/gorm"
 
 	"qaqmall/models"
+	"qaqmall/utils/jwts"
 )
 
 func Auth(db *gorm.DB) gin.HandlerFunc {
@@ -57,9 +59,30 @@ func Auth(db *gorm.DB) gin.HandlerFunc {
 		// 验证token并获取claims
 		if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
 			// 将用户信息存储到上下文中
-			c.Set("user_id", uint64(claims["user_id"].(float64)))
-			c.Set("username", claims["username"].(string))
-			c.Set("role", claims["role"].(string))
+			userID := uint64(claims["user_id"].(float64))
+			username := claims["username"].(string)
+			role := claims["role"].(string)
+			c.Set("user_id", userID)
+			c.Set("username", username)
+			c.Set("role", role)
+
+			if exp, exists := claims["exp"]; exists {
+				expTime := time.Unix(int64(exp.(float64)), 0)
+				remainingTime := expTime.Sub(time.Now())
+				fmt.Println(remainingTime)
+
+				// 剩余时间小于12小时，进行续期
+				if remainingTime < 12*time.Hour {
+					newToken, err := jwts.GenerateNewToken(userID, username, role)
+					if err != nil {
+						c.JSON(http.StatusInternalServerError, gin.H{"error": "续期token失败"})
+						c.Abort()
+						return
+					}
+					c.Header("Authorization", "Bearer "+newToken)
+					fmt.Println("续期token成功:" + newToken)
+				}
+			}
 			c.Next()
 		} else {
 			c.JSON(http.StatusUnauthorized, gin.H{"error": "无效的token"})
