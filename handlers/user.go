@@ -10,6 +10,7 @@ import (
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
 
+	"qaqmall/middleware"
 	"qaqmall/models"
 )
 
@@ -317,26 +318,9 @@ func (h *UserHandler) Logout(c *gin.Context) {
 }
 
 func generateToken(userID uint64, username string, role string) string {
-	// 创建JWT声明
-	now := time.Now().Add(time.Duration(time.Now().UnixNano()%1000) * time.Millisecond) // 添加随机毫秒数以确保每次生成的token都不同
-	claims := jwt.MapClaims{
-		"user_id":  userID,
-		"username": username,
-		"role":     role,
-		"iat":      now.Unix(),
-		"exp":      now.Add(time.Hour * 24).Unix(),
-		"jti":      time.Now().UnixNano(), // 添加唯一标识符
-	}
-
-	// 创建token
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-
-	// 使用密钥签名token
-	secretKey := []byte("your-secret-key")
-	tokenString, err := token.SignedString(secretKey)
+	token, err := middleware.GenerateNewToken(userID, username, role)
 	if err != nil {
 		return ""
 	}
-
-	return tokenString
+	return token
 }
