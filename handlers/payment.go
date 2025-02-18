@@ -277,14 +277,14 @@ func (w *WechatPayService) WechatPay(payment models.Payment, c *gin.Context, bod
 			bm.Set("total", amount).
 				Set("currency", "CNY")
 		})
-
+	//TODO 这里是正常的逻辑但是微信支付需要商家申请
 	//rsp, err := w.wechatPay.V3TransactionNative(w.ctx, bm)
 	//if err != nil {
 	//	return
 	//}
 	// result = rsp.Response.CodeUrl
-	result = "https://www.baidu.com"
 	//TODO 这里可以考虑给result重新设置一个二维码
+	result = "https://www.baidu.com"
 	return
 }
 
