@@ -41,7 +41,7 @@ var GlobalConf = &Config{}
 // WechatPayConfig 微信支付的配置信息
 type WechatPayConfig struct {
 	Appid       string // 应用ID
-	Appid1      string // 备用应用ID
+	Appid1      string // 备用应用ID (然并用)
 	MchId       string // 商户号
 	ApiV3Key    string // API v3 密钥
 	MchSerialNo string // 商户证书序列号
@@ -116,9 +116,25 @@ func LoadConfig() error {
 
 func NewPayHandler(db *gorm.DB, ctx context.Context) *PayHandler {
 	// 支付宝 支付客户端 TODO
-	appID := ""         //你的appID
-	privateKey := ""    //你的私钥
-	aliPhublicKey := "" //支付宝的公钥
+	appID := "9021000144618446" //你的appID
+	privateKey := "MIIEowIBAAKCAQEAwq9xfKTvrTJYkJorBxowaY7PEpi5sxl4/7lzr/1k0VJ3rhb6zttW062s5M2n7BT1pQ3CLbMa+p9hg++QSCStKKo/5YWJoFTn1K/rTG2zEk" +
+		"WauNljebceGAywTlYORKjQkFUGHq+X2g8I3aRcGrIRdelffZQFblc31/GWzh+Vh/Wbax6Kos5GIZiwGcUk1y9WWmc1JiNmi+x1oPa2uFxdE8Y4dAvlvc7PSawqb4znAeSX" +
+		"53CrXY/JA9ExnaIV40tZzXGBvpLoCDhcKl3WJtckFndtRDXhk8gpwxzViCkBa50nczlSx/MVpHiJjbqRpv3eHhYPQRWmHfinQtqIXAkLdwIDAQABAoIBAGdzpQGP/5Bw" +
+		"RWGpmp2ui/U7nsuJ/nuuWH7DBDeLlewpP1FyApqzMSNQkaQPqGCqDpJDimCQYRC2arIaNfgwDRejyEpluGlLVNnPFWDKljJqbDo3wkVmSgaLj5BA6FoRvqpDk/nwYufLv3" +
+		"FPqmXBI8gdV9G6O1yT2ifUx8cGP4Y7zQVdZCdqOgQyPTHMPwDt0cD/wAhNiq9hXeWD38EdkMwlXi8G+Z4L5Kp16QOFiD9tmjoVPO8RtW55GFJzydj7wKP7B0M4NghGvn" +
+		"Q7MAyBMfSJNRmCu7Op4KTjpNZMsvttvo9HuXzwyVuWcU+v9twbwa2ykl3N1e3THWrd3ayxJkkCgYEA+3sTW7uPHGK+Tw2ycGCOb1yq2pLbMZHUXBLYa38ViZvmamnEN0" +
+		"/J+H+CHvi9WUfwTq8/+Zv4QZBq069vpbr2WWSEtFlW6O8nAXHABtW7dpqAKjqOBloUj0xKG+QEHgLsG1GBwXZFpypszd8CjpYw3otOZkLitZY502MXza/0eNsCgYEAxi8V" +
+		"S2AUkWZBpMWjtoj8QYropqS8jy6f0e9Qw5yfpjmHYlRtxQx7RhT087tVSRNHIJ870t7SgLkmaDIicKbYrRwdzXW0Xi/5q9rSzwwO2MMFE8Ajn8+1wydkna2hXmfXQ/o14d3" +
+		"rKdR48sNMuDHal4uiA9WZAr+mVuvUOH7wXJUCgYEA0gzW+oQK4RbJBpbWOG8uCW5Jdw+67gh0bAOBqSgZATuqla+KKPkIJfu638u7vFsOKWrP8NmJ3pmV4QJkKvWi1r/S6C" +
+		"DHKwC2f8pXLl5Pmp0p+Bu4jS2ohpiePfWSSs7+D0NhMgpr21jgUIS5SgfBAeExttCfNDUqT5oxQ6h4dokCgYAxCYVjWSq9r2eetaiEifCg5xYZ5bkiVI8HCwgY3rBCGQn+" +
+		"spVWpHf8J0NU6412v2ZiFARhcPD1GNr//Se4aBBFBSf6pp0ykPxeIY733CvwRpEDCg/Gg0aeOykSOtwq19bT4x1h/d8qQoCK0Pgyu2MzDEHSYQ+zNmiaKVAhioc+4QKBgAY" +
+		"LgBsUkZyOPNI5RHtnFBWKlc6L6YGNf6nQ8gHEmclTrGLg97EixeW4Dl7kyC/l7KiOFUST9uLGoA0k7WssS8ylRmkaCZyNl/5hSlNCOhtPaVUHMeNcRBBnboOVZrFhLeS918D" +
+		"gguDqDxiNHos4rZ0sOUlLI56AfIXf7Ih9zTlq" //私钥
+
+	aliPhublicKey := "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAg1guOKjqO4uxMCi6Zefp2RzWQ6lJF5j/0/iAm3deiaS+eE/lN/6zPBsNA+ZvcN+G8YHJ25LhRK7" +
+		"pH2btT0k0eXMZB4o2GuzvgUHbrNjlVNhKtuCXYLbMXNJO67cK2+xOk2FQSJ/SgFjNS1GzgM2s/aLI6X8MVNOmFhXZksovJd2fa4XwYtI6J3Fkkvs607MaKN93P3IS8MOG" +
+		"jeemzVexYX2FqAtq/ixF9Avbz5SwXCyX6Mm4RORieVWsJ37jWzW6szlc92jDctuFzkt2YLa/b4rYCN+pzUGZnAY0gUgmHZ25Lyz0zz64aOHmTqznT3T09Z7yow+IFEPlKAMf" +
+		"fNHywwIDAQAB" //支付宝的公钥
 	client, err := alipay.New(appID, privateKey, false)
 	if err != nil {
 		panic(err)
@@ -130,14 +146,14 @@ func NewPayHandler(db *gorm.DB, ctx context.Context) *PayHandler {
 
 	// 初始化微信支付服务
 	service := NewWechatPayService(ctx, WechatPayConfig{
-		Appid:       "",
-		Appid1:      "",
-		MchId:       "",
-		ApiV3Key:    "",
-		MchSerialNo: "",
-		PrivateKey:  "",
-		NotifyUrl:   "",
-		RefundUrl:   "",
+		Appid:       "", // 微信支付应用的AppID
+		Appid1:      "", // 可能是另一个AppID，具体用途需确认
+		MchId:       "", // 商户号
+		ApiV3Key:    "", // API v3密钥
+		MchSerialNo: "", // 商户证书序列号
+		PrivateKey:  "", // 商户私钥
+		NotifyUrl:   "", // 支付结果通知地址
+		RefundUrl:   "", // 退款结果通知地址
 	})
 
 	return &PayHandler{
@@ -247,6 +263,7 @@ func (h *PayHandler) Alipay(payment models.Payment, c *gin.Context, body string,
 
 // 微信支付 PC端扫码
 func (w *WechatPayService) WechatPay(payment models.Payment, c *gin.Context, body string, outTradeNo string, totalFee int, notifyURL string) (result string, err error) {
+	//TODO 微信支付没有商业认证 这里考虑不处理 反正是测试功能
 	amount := totalFee
 	expire := time.Now().Add(10 * time.Minute).Format(time.RFC3339)
 	bm := make(gopay.BodyMap)
@@ -261,11 +278,13 @@ func (w *WechatPayService) WechatPay(payment models.Payment, c *gin.Context, bod
 				Set("currency", "CNY")
 		})
 
-	rsp, err := w.wechatPay.V3TransactionNative(w.ctx, bm)
-	if err != nil {
-		return
-	}
-	result = rsp.Response.CodeUrl
+	//rsp, err := w.wechatPay.V3TransactionNative(w.ctx, bm)
+	//if err != nil {
+	//	return
+	//}
+	// result = rsp.Response.CodeUrl
+	result = "https://www.baidu.com"
+	//TODO 这里可以考虑给result重新设置一个二维码
 	return
 }
 

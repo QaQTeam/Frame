@@ -122,7 +122,7 @@ func main() {
 	// 支付回调接口（不需要认证）
 	r.POST("/payments/callback", func(c *gin.Context) {
 		paymentHandler.AlipayNotify(c.Writer, c.Request)
-	}) // 支付回调接口
+	}) // 支付宝回调接口
 	r.POST("/payments/wechat/callback", func(c *gin.Context) {
 		handlers.WxPayNotify(c.Writer, c.Request)
 	}) // 微信支付回调接口
