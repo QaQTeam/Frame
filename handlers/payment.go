@@ -4,19 +4,19 @@ import (
 	"context"
 	"crypto/rsa"
 	"crypto/x509"
+	"encoding/base64"
 	"encoding/pem"
 	"encoding/xml"
 	"fmt"
+	"github.com/gin-gonic/gin"
 	"github.com/go-pay/gopay"
 	"github.com/go-pay/gopay/wechat/v3"
-	"io/ioutil"
-	"log"
-
-	"github.com/gin-gonic/gin"
-
 	"github.com/google/uuid" // 引入 uuid 库
+	"github.com/skip2/go-qrcode"
 	"github.com/smartwalle/alipay/v3"
 	"gorm.io/gorm"
+	"io/ioutil"
+	"log"
 	"net/http"
 	"qaqmall/models"
 	"time"
@@ -284,7 +284,11 @@ func (w *WechatPayService) WechatPay(payment models.Payment, c *gin.Context, bod
 	//}
 	// result = rsp.Response.CodeUrl
 	//TODO 这里可以考虑给result重新设置一个二维码
-	result = "https://www.baidu.com"
+	result = GenerateQRCode()
+	if result == "" {
+		c.JSON(http.StatusInternalServerError, gin.H{"message": "网络存在波动,请稍后重试"})
+		return
+	}
 	return
 }
 
@@ -471,7 +475,6 @@ func (h *PayHandler) GetPayment(c *gin.Context) {
 		return
 	}
 
-	// 将从上下文中提取的值转换为适当的类型
 	userIDUint64, ok := userID.(uint64)
 	if !ok {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "无效的用户ID!"})
@@ -504,4 +507,19 @@ func (h *PayHandler) GetPayment(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"payments": payments,
 	})
+}
+func GenerateQRCode() string {
+	// 要编码到二维码中的内容
+	content := "跳转微信支付失败..."
+
+	// 生成二维码图像
+	png, err := qrcode.Encode(content, qrcode.Medium, 256)
+	if err != nil {
+		return ""
+	}
+
+	// 将二维码图像编码为Base64字符串
+	base64Encoded := base64.StdEncoding.EncodeToString(png)
+
+	return base64Encoded
 }
