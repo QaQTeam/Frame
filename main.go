@@ -1,12 +1,12 @@
 package main
 
 import (
-	"log"
-	"time"
-
+	"context"
 	"github.com/gin-gonic/gin"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
+	"log"
+	"time"
 
 	"qaqmall/handlers"
 	"qaqmall/jobs"
@@ -47,7 +47,10 @@ func main() {
 	cartHandler := handlers.NewCartHandler(db)
 	addressHandler := handlers.NewAddressHandler(db)
 	orderHandler := handlers.NewOrderHandler(db)
-	paymentHandler := handlers.NewPaymentHandler(db)
+
+	// 定义 context.Context 变量
+	ctx := context.Background()
+	paymentHandler := handlers.NewPayHandler(db, ctx)
 	aiQueryHandler := handlers.NewAIQueryHandler(db)
 
 	// 初始化定时任务
@@ -96,8 +99,8 @@ func main() {
 		auth.POST("/orders/:id/cancel", orderHandler.CancelOrder)
 
 		// 支付管理
-		auth.POST("/payments", paymentHandler.CreatePayment)
-		auth.GET("/payments/:id", paymentHandler.GetPayment)
+		auth.POST("/payments", paymentHandler.Charge)        // 支付接口
+		auth.GET("/payments/:id", paymentHandler.GetPayment) // 更具用户id和支付状态查询记录
 
 		// AI 查询
 		auth.POST("/ai/query", aiQueryHandler.Query)
@@ -117,7 +120,12 @@ func main() {
 	r.GET("/products", productHandler.ListProducts)
 
 	// 支付回调接口（不需要认证）
-	r.POST("/payments/callback", paymentHandler.PaymentCallback)
+	r.POST("/payments/callback", func(c *gin.Context) {
+		paymentHandler.AlipayNotify(c.Writer, c.Request)
+	}) // 支付宝回调接口
+	r.POST("/payments/wechat/callback", func(c *gin.Context) {
+		handlers.WxPayNotify(c.Writer, c.Request)
+	}) // 微信支付回调接口
 
 	// 启动服务器
 	if err := r.Run(":8888"); err != nil {
